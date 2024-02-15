@@ -26,25 +26,30 @@ async def create_item(query: Query):
     # read posts_embedded.json and find the post with the closest embedding using cosine similarity
     # return the post
 
+    highest_similarity_matches = [] # runt the cosine similarity on the embeddings of the posts and store the top n matches
+
     with open('posts_embedded.json', 'r') as f:
         posts = json.load(f)
-        # filter out posts without embeddings
-        posts = [post for post in posts if 'embedding' in post]
-    for post in posts:
-        vector_a = array(post['embedding']).reshape(1, -1)
-        vector_b = array(embedding).reshape(1, -1)
-        similarity = cosine_similarity(vector_a, vector_b)
-        post['similarity'] = similarity[0][0]
-    posts.sort(key=lambda x: x['similarity'], reverse=True)
-    # fetch top results and get the plaintext and url
-    results = []
+        # filter out posts without paragraphs
+        posts = [post for post in posts if 'paragraphs' in post]
+    for post in posts:        
+        for paragraph in post['paragraphs']:
+            vector_a = array(paragraph['embedding']).reshape(1, -1)
+            vector_b = array(embedding).reshape(1, -1)
+            similarity = cosine_similarity(vector_a, vector_b)
+            paragraph['similarity'] = similarity[0][0]
+            highest_similarity_matches.append(paragraph)
+    highest_similarity_matches.sort(key=lambda x: x['similarity'], reverse=True)
+    clean_matches = []
     for i in range(query.num_results):
-        results.append({
-            'plaintext': posts[i]['plaintext'],
-            'url': posts[i]['url'],
-            'similarity': posts[i]['similarity']
+        clean_matches.append({
+            'paragraph': highest_similarity_matches[i]['paragraph'],
+            'url': highest_similarity_matches[i]['url'],
+            'similarity': highest_similarity_matches[i]['similarity']
         })
-    return results
+
+    return clean_matches
+
         
 
         
