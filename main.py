@@ -88,7 +88,7 @@ async def view_page(hash_id: str, request: Request):
         return templates.TemplateResponse("base.html", context=context)
         # return {"data": data}
     else:
-        context = {"request": request, "data": None}
+        context = {"request": request, "data": "No data found"}
         return templates.TemplateResponse("base.html", context=context)
         # raise HTTPException(status_code=404, detail="Not Found")
 
