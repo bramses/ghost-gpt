@@ -1,3 +1,4 @@
 .env
 *.json
+seed.txt
 *.pyc

@@ -86,7 +86,15 @@ async def embed_posts(posts, dry_run=False):
     return posts
 
 
-async def query_unique(query, n=5):
+async def chat_completion(messages):
+    completion = client.chat.completions.create(
+        model="gpt-4-turbo-preview",
+        messages=messages
+    )
+    return completion.choices[0].message.content
+
+
+async def query_unique(query, n=5, hyp_question=False, unr_question=True, skip_urls=[]):
     embedding = await embed_text(query)
 
     # read posts_embedded.json and find the post with the closest embedding using cosine similarity
@@ -109,12 +117,54 @@ async def query_unique(query, n=5):
     highest_similarity_matches.sort(
         key=lambda x: x['similarity'], reverse=True)
     clean_matches = []
-    for i in range(n):
-        clean_matches.append({
-            'paragraph': highest_similarity_matches[i]['paragraph'],
-            'url': highest_similarity_matches[i]['url'],
-            'similarity': highest_similarity_matches[i]['similarity']
-        })
+
+    # read seed.txt file
+    with open('seed.txt', 'r') as f:
+        seed = f.read()
+
+    i = 0
+    while i < n and i < len(highest_similarity_matches):
+        root_url = highest_similarity_matches[i]['url'].split('#:~:text=')[0]
+        if root_url in skip_urls:
+            print(f"Skipping {highest_similarity_matches[i]['url']}")
+            n += 1
+            i += 1
+            continue
+        if hyp_question:
+            hypothetical_question = [
+                {"role": "system", "content": f"Generate a hypothetical question using the prose from the seed.txt file as a style guide. The question should be related to the query.\n\nSeed: {seed}"},
+                {"role": "user", "content": f"Query: {highest_similarity_matches[i]['paragraph']} "}
+            ]
+            
+            next_pointer = await chat_completion(hypothetical_question)
+
+            clean_matches.append({
+                'paragraph': highest_similarity_matches[i]['paragraph'],
+                'url': highest_similarity_matches[i]['url'],
+                'similarity': highest_similarity_matches[i]['similarity'],
+                'next_pointer': next_pointer
+            })
+        elif unr_question:
+            unrelated_question = [
+                {"role": "system", "content": f"1. use the following as a seed 2. come up with an unrelated next question to explore something else. 3. make sure the question is related to the query by broad topic but unrelated as in it seems random. Just write the question -- nothing else."},
+                {"role": "user", "content": f"Query: {highest_similarity_matches[i]['paragraph']} "}
+            ]
+            
+            next_pointer = await chat_completion(unrelated_question)
+
+            clean_matches.append({
+                'paragraph': highest_similarity_matches[i]['paragraph'],
+                'url': highest_similarity_matches[i]['url'],
+                'similarity': highest_similarity_matches[i]['similarity'],
+                'next_pointer': next_pointer
+            })
+        else:
+            clean_matches.append({
+                'paragraph': highest_similarity_matches[i]['paragraph'],
+                'url': highest_similarity_matches[i]['url'],
+                'similarity': highest_similarity_matches[i]['similarity']
+            })
+        i += 1
 
     return clean_matches
 

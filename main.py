@@ -18,6 +18,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 class Query(BaseModel):
     query: str
     num_results: int
+    skip_urls: list = []
    
 
 @app.get("/")
@@ -26,34 +27,8 @@ async def read_root():
 
 @app.post("/query")
 async def query_embeddings(query: Query):
-    return await query_unique(query.query, query.num_results)
+    return await query_unique(query.query, query.num_results, skip_urls=query.skip_urls)
 
-'''
-given data like:
-
-[
-  {
-    "paragraph": "* childish gambino had an interview about some meme that was going around in 2013 on vine and how sad it is to make art to maintain success instead of chasing your own curiosity. he follows through on that to this day.",
-    "url": "https://www.bramadams.dev/my-thoughts-on-excellent-advice-for-living#:~:text=childish%20gambino%20had%20an%20interview%20about%20some%20meme%20that%20was%20going%20around%20in%202013%20on%20vine%20and%20how%20sad%20it%20is%20to%20make%20art%20to%20maintain%20success",
-    "similarity": 0.5516542627319667
-  },
-  {
-    "paragraph": "When I was a child, old enough to desire privacy, but young enough that most worldly things and I were on a first time basis -- on a birthday evening my friends and I were playing video games a drunken twenty-something stumbled into our house's back door. ^198d6d",
-    "url": "https://www.bramadams.dev/202212212242#:~:text=When%20I%20was%20a%20child%2C%20old%20enough%20to%20desire%20privacy%2C%20but%20young%20enough%20that%20most%20worldly%20things%20and%20I%20were%20on%20a%20first%20time%20basis%20--%20on%20a",
-    "similarity": 0.40297942353510174
-  }
-]
-
-i want to create a unique url that will return a template html page with the paragraphs and urls in a list
-
-the url should be short and unique and not contain any special characters
-
-the url should be unique to the query and the results
-
-ex: http://localhost:8000/big-fish-super
-
-the html page should be a template with the query and the results in a list
-'''
 
 data_store = {}
 
