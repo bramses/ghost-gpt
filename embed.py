@@ -53,7 +53,7 @@ async def embed_text(text):
     return response.data[0].embedding
 
 
-async def embed_posts(posts):
+async def embed_posts(posts, dry_run=False):
     for post in posts:
         if 'plaintext' in post and post['plaintext'] != "" and post['plaintext'] != None:
             if len(post['plaintext']) > 0:
@@ -64,15 +64,24 @@ async def embed_posts(posts):
                 post['paragraphs'] = []
                 for paragraph in paragraphs:
                     if len(paragraph) > MIN_PARAGRAPH_LENGTH and paragraph not in SKIP_LIST:
-                        embedding = await embed_text(paragraph.strip())
+                        if not dry_run:
+                            embedding = await embed_text(paragraph.strip())
                         text_fragment_url = create_text_fragment_url(
                             url, paragraph.strip())
-                        post['paragraphs'].append({
-                            'paragraph': paragraph.strip(),
-                            'embedding': embedding,
-                            'url': text_fragment_url,
-                            'root_url': url
-                        })
+                        if not dry_run:
+                            post['paragraphs'].append({
+                                'paragraph': paragraph.strip(),
+                                'embedding': embedding,
+                                'url': text_fragment_url,
+                                'root_url': url
+                            })
+                        else:
+                            post['paragraphs'].append({
+                                'paragraph': paragraph.strip(),
+                                'embedding': None,
+                                'url': text_fragment_url,
+                                'root_url': url
+                            })
 
     return posts
 
@@ -117,5 +126,5 @@ if __name__ == "__main__":
     posts = asyncio.run(embed_posts(posts))
 
     # write the embedded posts to a new file posts_embedded.json pretty printed
-    with open('posts_embedded.json', 'w') as f:
+    with open('posts_embedded.embedbig.json', 'w') as f:
         json.dump(posts, f, indent=4, sort_keys=True)
