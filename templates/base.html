@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>results! (bramadams.dev)</title>
-    <link href="{{ url_for('static', path='/css/main.css') }}" rel="stylesheet">
-
-</head>
-<body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>results! (bramadams.dev)</title>
+    <link
+      href="{{ url_for('static', path='/css/main.css') }}"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <div
       class="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 py-6 sm:py-12"
     >
@@ -15,117 +17,33 @@
         class="absolute top-1/2 left-1/2 max-w-none -translate-x-1/2 -translate-y-1/2"
         width="1308"
       >
-        <!-- ... background image here ... -->
       </div>
       <div
         class="relative px-6 pt-10 pb-8 sm:mx-auto sm:max-w-4xl sm:rounded-lg sm:px-10"
       >
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <!-- Card 1 -->
+        <p class="text-base mb-4">QUERY: {{ data.query }} </p>
+        <hr class="mb-4" />
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">          
+          {% for item in data.data %}
           <div
             class="rounded overflow-hidden shadow-lg p-4 mb-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200"
           >
-            <p class="text-gray-700 text-base mb-4">
-              * childish gambino had an interview about some meme that was going
-              around in 2013 on vine and how sad it is to make art to maintain
-              success instead of chasing your own curiosity. he follows through
-              on that to this day.
-            </p>
+            <p class="text-gray-700 text-base mb-4">{{ item.paragraph }}</p>
+            <hr class="mb-4 mt-4" />
             <a
-              href="https://www.bramadams.dev/my-thoughts-on-excellent-advice-for-living#:~:text=childish%20gambino%20had%20an%20interview%20about%20some%20meme%20that%20was%20going%20around%20in%202013%20on%20vine%20and%20how%20sad%20it%20is%20to%20make%20art%20to%20maintain%20success"
+              href="{{ item.url }}"
               target="_blank"
-              class="text-blue-500 hover:text-blue-800 visited:text-purple-600"
+              class="text-blue-500 hover:text-blue-800 visited:text-purple-600 mb-4"
             >
               Read more
             </a>
+            <hr class="mb-4 mt-4" />
+            <p class="text-gray-700 text-sm mb-4">Suggestion:</p>
+            <p class="text-gray-700 text-sm">{{ item.next_pointer }}</p>
           </div>
-          <div
-            class="rounded overflow-hidden shadow-lg p-4 mb-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200"
-          >
-            <p class="text-gray-700 text-base mb-4">
-              * childish gambino had an interview about some meme that was going
-              around in 2013 on vine and how sad it is to make art to maintain
-              success instead of chasing your own curiosity. he follows through
-              on that to this day.
-            </p>
-            <a
-              href="https://www.bramadams.dev/my-thoughts-on-excellent-advice-for-living#:~:text=childish%20gambino%20had%20an%20interview%20about%20some%20meme%20that%20was%20going%20around%20in%202013%20on%20vine%20and%20how%20sad%20it%20is%20to%20make%20art%20to%20maintain%20success"
-              target="_blank"
-              class="text-blue-500 hover:text-blue-800 visited:text-purple-600"
-            >
-              Read more
-            </a>
-          </div>
-          <div
-            class="rounded overflow-hidden shadow-lg p-4 mb-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200"
-          >
-            <p class="text-gray-700 text-base mb-4">
-              * childish gambino had an interview about some meme that was going
-              around in 2013 on vine and how sad it is to make art to maintain
-              success instead of chasing your own curiosity. he follows through
-              on that to this day.
-            </p>
-            <a
-              href="https://www.bramadams.dev/my-thoughts-on-excellent-advice-for-living#:~:text=childish%20gambino%20had%20an%20interview%20about%20some%20meme%20that%20was%20going%20around%20in%202013%20on%20vine%20and%20how%20sad%20it%20is%20to%20make%20art%20to%20maintain%20success"
-              target="_blank"
-              class="text-blue-500 hover:text-blue-800 visited:text-purple-600"
-            >
-              Read more
-            </a>
-          </div>
-          <div
-            class="rounded overflow-hidden shadow-lg p-4 mb-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200"
-          >
-            <p class="text-gray-700 text-base mb-4">
-              * childish gambino had an interview about some meme that was going
-              around in 2013 on vine and how sad it is to make art to maintain
-              success instead of chasing your own curiosity. he follows through
-              on that to this day.
-            </p>
-            <a
-              href="https://www.bramadams.dev/my-thoughts-on-excellent-advice-for-living#:~:text=childish%20gambino%20had%20an%20interview%20about%20some%20meme%20that%20was%20going%20around%20in%202013%20on%20vine%20and%20how%20sad%20it%20is%20to%20make%20art%20to%20maintain%20success"
-              target="_blank"
-              class="text-blue-500 hover:text-blue-800 visited:text-purple-600"
-            >
-              Read more
-            </a>
-          </div>
-          <div
-            class="rounded overflow-hidden shadow-lg p-4 mb-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200"
-          >
-            <p class="text-gray-700 text-base mb-4">
-              * childish gambino had an interview about some meme that was going
-              around in 2013 on vine and how sad it is to make art to maintain
-              success instead of chasing your own curiosity. he follows through
-              on that to this day.
-            </p>
-            <a
-              href="https://www.bramadams.dev/my-thoughts-on-excellent-advice-for-living#:~:text=childish%20gambino%20had%20an%20interview%20about%20some%20meme%20that%20was%20going%20around%20in%202013%20on%20vine%20and%20how%20sad%20it%20is%20to%20make%20art%20to%20maintain%20success"
-              target="_blank"
-              class="text-blue-500 hover:text-blue-800 visited:text-purple-600"
-            >
-              Read more
-            </a>
-          </div>
-          <div
-            class="rounded overflow-hidden shadow-lg p-4 mb-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200"
-          >
-            <p class="text-gray-700 text-base mb-4">
-              * childish gambino had an interview about some meme that was going
-              around in 2013 on vine and how sad it is to make art to maintain
-              success instead of chasing your own curiosity. he follows through
-              on that to this day.
-            </p>
-            <a
-              href="https://www.bramadams.dev/my-thoughts-on-excellent-advice-for-living#:~:text=childish%20gambino%20had%20an%20interview%20about%20some%20meme%20that%20was%20going%20around%20in%202013%20on%20vine%20and%20how%20sad%20it%20is%20to%20make%20art%20to%20maintain%20success"
-              target="_blank"
-              class="text-blue-500 hover:text-blue-800 visited:text-purple-600"
-            >
-              Read more
-            </a>
-          </div>
+          {% endfor %}
         </div>
       </div>
     </div>
-</body>
+  </body>
 </html>
