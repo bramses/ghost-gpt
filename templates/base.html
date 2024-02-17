@@ -30,15 +30,19 @@
           >
             <p class="text-gray-700 text-base mb-4">{{ item.paragraph }}</p>
             <hr class="mb-4 mt-4" />
-            <a
+            <div class="mb-4">
+              <a
               href="{{ item.url }}"
               target="_blank"
-              class="text-blue-500 hover:text-blue-800 visited:text-purple-600 mb-4"
+              class="text-blue-500 hover:text-blue-800 visited:text-purple-600 mb-4 mt-4"
             >
               Read more
             </a>
+          </div>
+            
             <hr class="mb-4 mt-4" />
-            <p class="text-gray-700 text-sm mb-4">Suggestion:</p>
+
+            <p class="text-gray-700 text-sm mb-4 mt-4">Suggestion:</p>
             <p class="text-gray-700 text-sm">{{ item.next_pointer }}</p>
           </div>
           {% endfor %}
