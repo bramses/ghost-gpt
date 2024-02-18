@@ -52,6 +52,7 @@ async def query_embeddings(query: Query):
             data_store[query.parent_hash]['data'].extend(data)
             if IS_PROD:
                 url = os.getenv("PROD_URL")
+                print("Using prod url")
             else:
                 url = "http://localhost:8000"
             return {
@@ -79,8 +80,15 @@ async def query_embeddings(query: Query):
         }
 
         # Return the unique URL
+
+        if IS_PROD:
+            url = os.getenv("PROD_URL")
+            print("Using prod url")
+        else:
+            url = "http://localhost:8000"
+
         return {
-            "url": f"http://localhost:8000/view/{short_hash}",
+            "url": f"{url}/view/{short_hash}",
             "data": data
         }
 
@@ -107,7 +115,12 @@ async def generate_page(query_data: QueryData):
     data_store[short_hash] = query_data.data
 
     # Return the unique URL
-    return {"url": f"http://localhost:8000/view/{short_hash}"}
+    if IS_PROD:
+        url = os.getenv("PROD_URL")
+        print("Using prod url")
+    else:
+        url = "http://localhost:8000"
+    return {"url": f"{url}/view/{short_hash}"}
 
 
 @app.get("/view/{hash_id}")
