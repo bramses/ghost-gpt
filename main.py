@@ -54,7 +54,7 @@ async def query_embeddings(query: Query):
                 url = os.getenv("PROD_URL")
                 print("Using prod url")
             else:
-                url = "http://localhost:8000"
+                url = "http://0.0.0.0:8000"
             return {
                 "url": f"{url}/view/{query.parent_hash}",
                 "data": data_store[query.parent_hash]['data']
@@ -85,7 +85,7 @@ async def query_embeddings(query: Query):
             url = os.getenv("PROD_URL")
             print("Using prod url")
         else:
-            url = "http://localhost:8000"
+            url = "http://0.0.0.0:8000"
 
         return {
             "url": f"{url}/view/{short_hash}",
@@ -119,7 +119,7 @@ async def generate_page(query_data: QueryData):
         url = os.getenv("PROD_URL")
         print("Using prod url")
     else:
-        url = "http://localhost:8000"
+        url = "http://0.0.0.0:8000"
     return {"url": f"{url}/view/{short_hash}"}
 
 
@@ -177,9 +177,9 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="MC Strive",
+        title="bramadams.dev chat mode",
         version="3.0.2",
-        description="Small Business Help",
+        description="Chat with bramadams.dev",
         routes=app.routes,
     )    
 
@@ -189,7 +189,7 @@ def custom_openapi():
         }]
     else:
         openapi_schema["servers"] = [
-            {"url": "http://localhost:8000", "description": "Local server"},
+            {"url": "http://0.0.0.0:8000", "description": "Local server"},
             {"url": os.getenv("PROD_URL"), "description": "Production server"},
         ]
     # if components.schema is not defined add it (for openai error: Error getting system message: {"message":"Could not parse OpenAPI spec for plugin: ['In components section, schemas subsection is not an object']"})
