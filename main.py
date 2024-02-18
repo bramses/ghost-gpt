@@ -7,6 +7,7 @@ import os
 import hashlib
 import base64
 from fastapi.templating import Jinja2Templates
+from fastapi.openapi.utils import get_openapi
 from fastapi.staticfiles import StaticFiles
 
 
@@ -48,8 +49,12 @@ async def query_embeddings(query: Query):
             data = await query_unique(query.query, query.num_results, skip_urls=query.skip_urls)
 
             data_store[query.parent_hash]['data'].extend(data)
+            if IS_PROD:
+                url = os.getenv("PROD_URL")
+            else:
+                url = "http://localhost:8000"
             return {
-                "url": f"http://localhost:8000/view/{query.parent_hash}",
+                "url": f"{url}/view/{query.parent_hash}",
                 "data": data_store[query.parent_hash]['data']
             }
         else:
@@ -153,8 +158,37 @@ async def len_posts():
         posts = json.load(f)
     return len(posts)
 
-# run the server with uvicorn main:app --reload
 
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="MC Strive",
+        version="3.0.2",
+        description="Small Business Help",
+        routes=app.routes,
+    )    
+
+    if IS_PROD:
+        openapi_schema["servers"] = [{
+            "url": os.getenv("PROD_URL"),
+        }]
+    else:
+        openapi_schema["servers"] = [
+            {"url": "http://localhost:8000", "description": "Local server"},
+            {"url": os.getenv("PROD_URL"), "description": "Production server"},
+        ]
+    # if components.schema is not defined add it (for openai error: Error getting system message: {"message":"Could not parse OpenAPI spec for plugin: ['In components section, schemas subsection is not an object']"})
+    if "components" not in openapi_schema:
+        openapi_schema["components"] = {}
+        openapi_schema["components"]["schemas"] = {}
+    else:
+        if "schemas" not in openapi_schema["components"]:
+            openapi_schema["components"]["schemas"] = {}
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
 
 def start():
     port = int(os.environ.get("PORT", 8000))
