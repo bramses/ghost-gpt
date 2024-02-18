@@ -21,7 +21,7 @@
       <div
         class="relative px-6 pt-10 pb-8 sm:mx-auto sm:max-w-4xl sm:rounded-lg sm:px-10"
       >
-        <p class="text-base mb-4">QUERY: {{ data.query }} </p>
+        <p class="text-base mb-4">QUERY <br />{{ data.query }} </p>
         <hr class="mb-4" />
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">          
           {% for item in data.data %}
@@ -36,18 +36,69 @@
               target="_blank"
               class="text-blue-500 hover:text-blue-800 visited:text-purple-600 mb-4 mt-4"
             >
-              Read more
+              JUMP TO LINK
             </a>
           </div>
             
             <hr class="mb-4 mt-4" />
 
-            <p class="text-gray-700 text-sm mb-4 mt-4">Suggestion:</p>
+            <p class="text-gray-700 text-sm mb-4 mt-4">THINK NEXT</p>
             <p class="text-gray-700 text-sm">{{ item.next_pointer }}</p>
+            <div class="mt-4 mb-4">
+              <button
+              id="ask"
+              onclick="ask('{{ item.next_pointer }}', `{{ data|tojson|safe }}`, window.location.href.split('/').pop())"
+              class="bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
+              
+              >ASK</button>
+            </div>
           </div>
           {% endfor %}
         </div>
       </div>
     </div>
   </body>
+  <script>
+    function ask(next_pointer, urls, parent_hash) {
+     // onclick post to /query with:
+     /*
+      {
+        "query": "next_pointer",
+        "num_results": 1,
+        "skip_urls": [item.urls], // list of urls to skip trimmed to just the slug
+        "parent_hash": "..." // hash of the parent using window.location url
+      }
+     */
+
+      // on success, append the new result to the grid
+
+      const query = {
+        query: next_pointer,
+        num_results: 1,
+        skip_urls: urls,
+        parent_hash: parent_hash
+      };
+      console.log('query', query);
+      
+      // fetch('/query', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(query),
+      // })
+      //   .then((response) => response.json())
+      //   .then((data) => {
+      //     console.log('Success:', data);
+      //     // append the new result to the grid
+      //   })
+      //   .catch((error) => {
+      //     console.error('Error:', error);
+      //   });
+
+      // on error, display an error message
+
+
+    };
+  </script>
 </html>

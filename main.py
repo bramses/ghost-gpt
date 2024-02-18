@@ -19,6 +19,7 @@ class Query(BaseModel):
     query: str
     num_results: int
     skip_urls: list = []
+    parent_hash: str = None
 
 
 @app.get("/")
@@ -28,24 +29,54 @@ async def read_root():
 
 @app.post("/query")
 async def query_embeddings(query: Query):
-    data = await query_unique(query.query, query.num_results, skip_urls=query.skip_urls)
-    json_data = json.dumps(data)
-    # Convert the query data to a string and hash it
-    data_str = str(json_data).encode('utf-8')
-    hash_object = hashlib.sha256(data_str)
-    short_hash = base64.urlsafe_b64encode(
-        hash_object.digest()).decode('utf-8')[:10]  # keeping it short
+    if query.num_results > 4:
+        raise HTTPException(status_code=400, detail="Number of results must be less than 4")
+    if query.num_results <= 0:
+        raise HTTPException(status_code=400, detail="Number of results must be greater than 0")
+    if len(query.query) <= 0:
+        raise HTTPException(status_code=400, detail="Query must not be empty")
+    if len(query.query) >= 1000:
+        raise HTTPException(status_code=400, detail="Query must be less than 1000 characters")
+    
+    
+    ''' 
+    if a parent hash id is provided, then we need to add the data to the parent hash id in the data store, else we need to create a new hash id and add the data to the data store
+    '''
 
-    print("Short hash: ", short_hash)
+    if query.parent_hash is not None and query.parent_hash != "":
+        if query.parent_hash in data_store:
+            data = await query_unique(query.query, query.num_results, skip_urls=query.skip_urls)
 
-    # Store the data using the hash as a key
-    data_store[short_hash] = {
-        "data" : data,
-        "query" : query.query
-    }
+            data_store[query.parent_hash]['data'].extend(data)
+            return {
+                "url": f"http://localhost:8000/view/{query.parent_hash}",
+                "data": data_store[query.parent_hash]['data']
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Parent hash not found")
+    else:
+        data = await query_unique(query.query, query.num_results, skip_urls=query.skip_urls)
 
-    # Return the unique URL
-    return {"url": f"http://localhost:8000/view/{short_hash}"}
+        json_data = json.dumps(data)
+        # Convert the query data to a string and hash it
+        data_str = str(json_data).encode('utf-8')
+        hash_object = hashlib.sha256(data_str)
+        short_hash = base64.urlsafe_b64encode(
+            hash_object.digest()).decode('utf-8')[:10]  # keeping it short
+
+        print("Short hash added: ", short_hash)
+
+        # Store the data using the hash as a key
+        data_store[short_hash] = {
+            "data": data,
+            "query": query.query
+        }
+
+        # Return the unique URL
+        return {
+            "url": f"http://localhost:8000/view/{short_hash}",
+            "data": data
+        }
 
 data_store = {}
 
@@ -108,10 +139,12 @@ async def view_page(hash_id: str, request: Request):
 
         return templates.TemplateResponse("base.html", context=context)
         # return {"data": data}
-    else:
+    elif hash_id == "example":
         context = {"request": request, "data": example_data}
         return templates.TemplateResponse("base.html", context=context)
         # raise HTTPException(status_code=404, detail="Not Found")
+    else:
+        raise HTTPException(status_code=404, detail="Not Found")
 
 
 @app.get("/len")

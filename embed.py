@@ -8,6 +8,7 @@ import urllib.parse
 import time
 from sklearn.metrics.pairwise import cosine_similarity
 from numpy import array
+from supabase_utils import semantic_search
 
 enc = tiktoken.get_encoding("cl100k_base")
 
@@ -95,6 +96,62 @@ async def chat_completion(messages):
 
 
 async def query_unique(query, n=5, hyp_question=False, unr_question=True, skip_urls=[]):
+    embedding = await embed_text(query)
+    sr = await semantic_search(embedding, 0.2, 10)
+
+    clean_matches = []
+    # read seed.txt file
+    with open('seed.txt', 'r') as f:
+        seed = f.read()
+    i = 0
+    while i < n and i < len(sr.data):
+        print(f"Processing {i+1}/{n}")
+        print(f"URL: {sr.data[i]}")
+        root_url = sr.data[i]['url'].split('#:~:text=')[0]
+        if root_url in skip_urls:
+            print(f"Skipping {sr.data[i]['url']}")
+            n += 1
+            i += 1
+            continue
+        if hyp_question:
+            hypothetical_question = [
+                {"role": "system", "content": f"Generate a hypothetical question using the prose from the seed.txt file as a style guide. The question should be related to the query.\n\nSeed: {seed}"},
+                {"role": "user", "content": f"Query: {sr.data[i]['paragraph']} "}
+            ]
+            
+            next_pointer = await chat_completion(hypothetical_question)
+
+            clean_matches.append({
+                'paragraph': sr.data[i]['paragraph'],
+                'url': sr.data[i]['url'],
+                'similarity': sr.data[i]['similarity'],
+                'next_pointer': next_pointer
+            })
+        elif unr_question:
+            unrelated_question = [
+                {"role": "system", "content": f"1. use the following as a seed 2. come up with an unrelated next question to explore something else. 3. make sure the question is related to the query by broad topic but unrelated as in it seems random. Just write the question -- nothing else."},
+                {"role": "user", "content": f"Query: {sr.data[i]['paragraph']} "}
+            ]
+            
+            next_pointer = await chat_completion(unrelated_question)
+
+            clean_matches.append({
+                'paragraph': sr.data[i]['paragraph'],
+                'url': sr.data[i]['url'],
+                'similarity': sr.data[i]['similarity'],
+                'next_pointer': next_pointer
+            })
+        else:
+            clean_matches.append({
+                'paragraph': sr.data[i]['paragraph'],
+                'url': sr.data[i]['url'],
+                'similarity': sr.data[i]['similarity']
+            })
+        i += 1
+
+    return clean_matches
+
+async def query_unique_v0(query, n=5, hyp_question=False, unr_question=True, skip_urls=[]):
     embedding = await embed_text(query)
 
     # read posts_embedded.json and find the post with the closest embedding using cosine similarity
