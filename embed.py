@@ -101,8 +101,8 @@ async def query_unique(query, n=5, hyp_question=False, unr_question=True, skip_u
 
     clean_matches = []
     # read seed.txt file
-    with open('seed.txt', 'r') as f:
-        seed = f.read()
+    # with open('seed.txt', 'r') as f:
+    #     seed = f.read()
     i = 0
     while i < n and i < len(sr.data):
         print(f"Processing {i+1}/{n}")
@@ -115,7 +115,7 @@ async def query_unique(query, n=5, hyp_question=False, unr_question=True, skip_u
             continue
         if hyp_question:
             hypothetical_question = [
-                {"role": "system", "content": f"Generate a hypothetical question using the prose from the seed.txt file as a style guide. The question should be related to the query.\n\nSeed: {seed}"},
+                {"role": "system", "content": f"Generate a hypothetical question using the prose from the seed.txt file as a style guide. The question should be related to the query.\n\nSeed: polemic poetry, thought-provoking prose, and the occasional pun."},
                 {"role": "user", "content": f"Query: {sr.data[i]['paragraph']} "}
             ]
             
