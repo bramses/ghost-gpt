@@ -15,6 +15,7 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+IS_PROD = os.getenv("IS_PROD") == "True"
 
 class Query(BaseModel):
     query: str
