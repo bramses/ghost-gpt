@@ -25,8 +25,47 @@ def extract_plaintext(url):
 
     return process_html(soup).strip()
 
+def split_into_sublists(text, max_len):
+    assert max_len > 0
+    assert len(text) > 0
+
+    lines = text.split('\n')  # Split the text into lines
+    sublists = []  # List of sublists
+    current_list = []  # Current sublist
+    current_length = 0  # Length of the current sublist
+
+    for line in lines:
+        line_length = len(line)
+        if current_length + line_length + len(current_list) > max_len:  # If adding the line would exceed the max length
+            sublists.append('\n'.join(current_list))  # Add the current sublist to the list of sublists
+            current_list = [line]  # Start a new sublist
+            current_length = line_length  # Set the length of the new sublist
+        else:
+            current_list.append(line)
+            current_length += line_length
+
+    if current_list:
+        sublists.append('\n'.join(current_list))
+
+    return sublists
+
+def parse_into_thirds(plaintext):
+    thirds = split_into_sublists(plaintext, len(plaintext) // 3)
+    if len(thirds) > 3:
+        # Merge the last two sections if there are more than three sections
+        thirds[-2] += '\n---\n' + thirds[-1]
+        thirds.pop(-1)
+    return thirds
+
+
 
 # Testing on the provided URL
-url = 'https://www.bramadams.dev/my-thoughts-on-solo-leveling/'
+url = 'https://www.bramadams.dev/issue-48/'
 plaintext = extract_plaintext(url)
-print(plaintext)
+# print(plaintext)
+print(len(plaintext) // 3)
+thirds = parse_into_thirds(plaintext)
+for third in thirds:
+    print(third)
+    print(len(third))
+    print('---')
