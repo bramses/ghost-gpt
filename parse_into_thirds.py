@@ -60,12 +60,15 @@ def parse_into_thirds(plaintext):
 
 
 # Testing on the provided URL
-url = 'https://www.bramadams.dev/issue-48/'
+url = 'https://www.bramadams.dev/my-thoughts-on-nefertiti/'
 plaintext = extract_plaintext(url)
 # print(plaintext)
 print(len(plaintext) // 3)
 thirds = parse_into_thirds(plaintext)
+i = 0
+titles = ["First Section", "Second Section", "Third Section"]
 for third in thirds:
+    print("## " + titles[i])
     print(third)
-    print(len(third))
-    print('---')
+    i += 1
+    
